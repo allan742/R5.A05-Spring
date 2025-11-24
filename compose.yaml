@@ -1,0 +1,11 @@
+services:
+  mysql:
+    container_name: api_database
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: verysecret
+      MYSQL_DATABASE: blogs
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: secret
+    ports:
+      - "3306:3306"

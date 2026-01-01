@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.example.accessing_data_mysql.users.Role;
 import com.example.accessing_data_mysql.users.User;
 import com.example.accessing_data_mysql.users.UserRepository;
 
@@ -26,11 +27,14 @@ public class PublicationController {
     @PostMapping(path="/add")
     public @ResponseBody Publication addNewPublication(@RequestParam String title, @RequestParam String content, @RequestParam Integer authorId) {
         User author = userRepository.findById(authorId).orElse(null);
-        
+
         if (author == null) {
             throw new IllegalArgumentException("Invalid author ID: " + authorId); 
         }
-        
+
+        if(author.getRole() != Role.PUBLISHER) {
+            throw new IllegalArgumentException("Only publishers can create publications.");
+        }
         Publication p = new Publication();
         p.setTitle(title);
         p.setContent(content);
@@ -54,10 +58,19 @@ public class PublicationController {
         if (publication == null) {
             return ResponseEntity.notFound().build();
         }
+        User author = userRepository.findById(authorId).orElse(null);
+        if (author == null) {
+            throw new IllegalArgumentException("Invalid author ID: " + authorId); 
+        }
+
+        if (publication.getAuthor().getRole() != Role.PUBLISHER) {
+            throw new IllegalArgumentException("Only publishers can update their own publications.");
+        }
 
         if (publication.getAuthor().getId() != authorId) {
             throw new IllegalArgumentException("Author ID does not match the publication's author.");
         }
+
         if (title.isPresent()) {
             publication.setTitle(title.get());
         }
@@ -68,12 +81,36 @@ public class PublicationController {
         
         return ResponseEntity.ok(publication);
     }
-
+    @GetMapping(path="/delete")
+    public ResponseEntity<?> deletePublication(@RequestParam Integer id, @RequestParam Integer authorId) {
+        Publication publication = publicationRepository.findById(id).orElse(null);
+        if (publication == null) {
+            return ResponseEntity.notFound().build();
+        }
+        User author = userRepository.findById(authorId).orElse(null);
+        if (author == null) {
+            throw new IllegalArgumentException("Invalid author ID: " + authorId); 
+        }
+        if (publication.getAuthor().getRole() != Role.PUBLISHER) {
+            throw new IllegalArgumentException("Only publishers can delete their own publications.");
+        }
+        if (publication.getAuthor().getId() != authorId) {
+            throw new IllegalArgumentException("Author ID does not match the publication's author.");
+        }
+        publicationRepository.delete(publication);
+        return ResponseEntity.ok().build();
+    }
+    /**
+     * Get all publications.
+     */
 	@GetMapping(path="/all")
 	public @ResponseBody Iterable<Publication> getPosts() {
 		return publicationRepository.findAll();
 	}
 
+    /**
+     * Get publications by author ID.
+     */
     @GetMapping(path = "/author")
     public @ResponseBody Iterable<Publication> getPublicationsByAuthor(
             @RequestParam Integer authorId) {

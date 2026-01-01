@@ -120,5 +120,22 @@ public class PublicationController {
 
         return publicationRepository.findByAuthorId(authorId);
     }
+
+    @GetMapping(path="/moderator/delete")
+    public ResponseEntity<?> deletePublicationModerator(@RequestParam Integer id, @RequestParam Integer authorId) {
+        Publication publication = publicationRepository.findById(id).orElse(null);
+        if (publication == null) {
+            return ResponseEntity.notFound().build();
+        }
+        User author = userRepository.findById(authorId).orElse(null);
+        if (author == null) {
+            throw new IllegalArgumentException("Invalid author ID: " + authorId); 
+        }
+        if (author.getRole() != Role.MODERATOR) {
+            throw new IllegalArgumentException("Only moderators can delete publications.");
+        }
+        publicationRepository.delete(publication);
+        return ResponseEntity.ok().build();
+    }
 }
 

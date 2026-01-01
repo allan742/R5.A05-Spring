@@ -26,11 +26,7 @@ public class PublicationController {
     
     @PostMapping(path="/add")
     public @ResponseBody Publication addNewPublication(@RequestParam String title, @RequestParam String content, @RequestParam Integer authorId) {
-        User author = userRepository.findById(authorId).orElse(null);
-
-        if (author == null) {
-            throw new IllegalArgumentException("Invalid author ID: " + authorId); 
-        }
+        User author = userRepository.findById(authorId).orElseThrow(() -> new IllegalArgumentException("Invalid author ID: " + authorId));
 
         if(author.getRole() != Role.PUBLISHER) {
             throw new IllegalArgumentException("Only publishers can create publications.");
@@ -58,10 +54,7 @@ public class PublicationController {
         if (publication == null) {
             return ResponseEntity.notFound().build();
         }
-        User author = userRepository.findById(authorId).orElse(null);
-        if (author == null) {
-            throw new IllegalArgumentException("Invalid author ID: " + authorId); 
-        }
+        userRepository.findById(authorId).orElseThrow(() -> new IllegalArgumentException("Invalid author ID: " + authorId));
 
         if (publication.getAuthor().getRole() != Role.PUBLISHER) {
             throw new IllegalArgumentException("Only publishers can update their own publications.");
@@ -87,10 +80,7 @@ public class PublicationController {
         if (publication == null) {
             return ResponseEntity.notFound().build();
         }
-        User author = userRepository.findById(authorId).orElse(null);
-        if (author == null) {
-            throw new IllegalArgumentException("Invalid author ID: " + authorId); 
-        }
+        userRepository.findById(authorId).orElseThrow(() -> new IllegalArgumentException("Invalid author ID: " + authorId));
         if (publication.getAuthor().getRole() != Role.PUBLISHER) {
             throw new IllegalArgumentException("Only publishers can delete their own publications.");
         }
@@ -115,9 +105,11 @@ public class PublicationController {
     public @ResponseBody Iterable<Publication> getPublicationsByAuthor(
             @RequestParam Integer authorId) {
 
-        userRepository.findById(authorId)
+        User author = userRepository.findById(authorId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid author ID: " + authorId));
-
+        if (author.getRole() != Role.PUBLISHER) {
+            throw new IllegalArgumentException("Only publishers can delete their own publications.");
+        }
         return publicationRepository.findByAuthorId(authorId);
     }
 
@@ -127,10 +119,8 @@ public class PublicationController {
         if (publication == null) {
             return ResponseEntity.notFound().build();
         }
-        User author = userRepository.findById(authorId).orElse(null);
-        if (author == null) {
-            throw new IllegalArgumentException("Invalid author ID: " + authorId); 
-        }
+        User author = userRepository.findById(authorId).orElseThrow(() -> new IllegalArgumentException("Invalid author ID: " + authorId));
+
         if (author.getRole() != Role.MODERATOR) {
             throw new IllegalArgumentException("Only moderators can delete publications.");
         }

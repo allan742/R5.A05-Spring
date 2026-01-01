@@ -7,7 +7,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
+
 
 @Entity // This tells Hibernate to make a table out of this class
 public class Publication {
@@ -19,7 +20,7 @@ public class Publication {
 
   private String content;
 
-  @OneToOne
+  @ManyToOne
   @JoinColumn(name = "author_id")
   private User author;
 

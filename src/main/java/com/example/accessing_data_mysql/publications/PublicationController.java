@@ -1,5 +1,7 @@
 package com.example.accessing_data_mysql.publications;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -46,8 +48,40 @@ public class PublicationController {
         return ResponseEntity.ok(publication);
     }
 
+    @GetMapping(path="/update")
+    public ResponseEntity<Publication> updatePublication(@RequestParam Integer id, @RequestParam Optional<String> title, @RequestParam Optional<String> content, @RequestParam Integer authorId) {
+        Publication publication = publicationRepository.findById(id).orElse(null);
+        if (publication == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (publication.getAuthor().getId() != authorId) {
+            throw new IllegalArgumentException("Author ID does not match the publication's author.");
+        }
+        if (title.isPresent()) {
+            publication.setTitle(title.get());
+        }
+        if (content.isPresent()) {
+            publication.setContent(content.get());
+        }
+        publicationRepository.save(publication);
+        
+        return ResponseEntity.ok(publication);
+    }
+
 	@GetMapping(path="/all")
 	public @ResponseBody Iterable<Publication> getPosts() {
 		return publicationRepository.findAll();
 	}
+
+    @GetMapping(path = "/author")
+    public @ResponseBody Iterable<Publication> getPublicationsByAuthor(
+            @RequestParam Integer authorId) {
+
+        userRepository.findById(authorId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid author ID: " + authorId));
+
+        return publicationRepository.findByAuthorId(authorId);
+    }
 }
+

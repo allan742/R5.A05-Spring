@@ -1,4 +1,4 @@
-package com.example.accessing_data_mysql;
+package com.example.accessing_data_mysql.users;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

@@ -15,53 +15,53 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
-
 @Entity // This tells Hibernate to make a table out of this class
 public class Publication {
-  @Id
-  @GeneratedValue(strategy=GenerationType.AUTO)
-  private Integer id;
 
-  private String title;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer id;
 
-  private String content;
-  @OneToMany(mappedBy = "publication", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<Like> likes = new ArrayList<>();
+    private String title;
 
+    private String content;
+    @OneToMany(mappedBy = "publication", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Like> likes = new ArrayList<>();
 
-  @ManyToOne
-  @JoinColumn(name = "author_id")
-  private User author;
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    private User author;
 
-  public Integer getId() {
-    return id;
-  }
+    public Integer getId() {
+        return id;
+    }
 
-  public void setId(Integer id) {
-    this.id = id;
-  }
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-  public String getTitle() {
-    return title;
-  }
+    public String getTitle() {
+        return title;
+    }
 
-  public void setTitle(String title) {
-    this.title = title;
-  }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-  public String getContent() {
-    return content;
-  }
+    public String getContent() {
+        return content;
+    }
 
-  public void setContent(String content) {
-    this.content = content;
-  }
-  public User getAuthor() {
-    return author;
-  }
+    public void setContent(String content) {
+        this.content = content;
+    }
 
-  public void setAuthor(User author) {
-    this.author = author;
-  }
-  
+    public User getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(User author) {
+        this.author = author;
+    }
+
 }

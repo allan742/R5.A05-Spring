@@ -16,19 +16,21 @@ import com.example.accessing_data_mysql.users.User;
 import com.example.accessing_data_mysql.users.UserRepository;
 
 @Controller
-@RequestMapping(path="/posts")
+@RequestMapping(path = "/posts")
 public class PublicationController {
+
     @Autowired
-	private PublicationRepository publicationRepository;
-    
+    private PublicationRepository publicationRepository;
+
     @Autowired
     private UserRepository userRepository;
-    
-    @PostMapping(path="/add")
-    public @ResponseBody Publication addNewPublication(@RequestParam String title, @RequestParam String content, @RequestParam Integer authorId) {
+
+    @PostMapping(path = "/add")
+    public @ResponseBody
+    Publication addNewPublication(@RequestParam String title, @RequestParam String content, @RequestParam Integer authorId) {
         User author = userRepository.findById(authorId).orElseThrow(() -> new IllegalArgumentException("Invalid author ID: " + authorId));
 
-        if(author.getRole() != Role.PUBLISHER) {
+        if (author.getRole() != Role.PUBLISHER) {
             throw new IllegalArgumentException("Only publishers can create publications.");
         }
         Publication p = new Publication();
@@ -39,7 +41,7 @@ public class PublicationController {
         return p;
     }
 
-    @GetMapping(path="/get")
+    @GetMapping(path = "/get")
     public ResponseEntity<Publication> getPublicationById(@RequestParam Integer id) {
         Publication publication = publicationRepository.findById(id).orElse(null);
         if (publication == null) {
@@ -48,7 +50,7 @@ public class PublicationController {
         return ResponseEntity.ok(publication);
     }
 
-    @GetMapping(path="/update")
+    @GetMapping(path = "/update")
     public ResponseEntity<Publication> updatePublication(@RequestParam Integer id, @RequestParam Optional<String> title, @RequestParam Optional<String> content, @RequestParam Integer authorId) {
         Publication publication = publicationRepository.findById(id).orElse(null);
         if (publication == null) {
@@ -71,10 +73,11 @@ public class PublicationController {
             publication.setContent(content.get());
         }
         publicationRepository.save(publication);
-        
+
         return ResponseEntity.ok(publication);
     }
-    @GetMapping(path="/delete")
+
+    @GetMapping(path = "/delete")
     public ResponseEntity<?> deletePublication(@RequestParam Integer id, @RequestParam Integer authorId) {
         Publication publication = publicationRepository.findById(id).orElse(null);
         if (publication == null) {
@@ -90,19 +93,22 @@ public class PublicationController {
         publicationRepository.delete(publication);
         return ResponseEntity.ok().build();
     }
+
     /**
      * Get all publications.
      */
-	@GetMapping(path="/all")
-	public @ResponseBody Iterable<Publication> getPosts() {
-		return publicationRepository.findAll();
-	}
+    @GetMapping(path = "/all")
+    public @ResponseBody
+    Iterable<Publication> getPosts() {
+        return publicationRepository.findAll();
+    }
 
     /**
      * Get publications by author ID.
      */
     @GetMapping(path = "/author")
-    public @ResponseBody Iterable<Publication> getPublicationsByAuthor(
+    public @ResponseBody
+    Iterable<Publication> getPublicationsByAuthor(
             @RequestParam Integer authorId) {
 
         User author = userRepository.findById(authorId)
@@ -113,7 +119,7 @@ public class PublicationController {
         return publicationRepository.findByAuthorId(authorId);
     }
 
-    @GetMapping(path="/moderator/delete")
+    @GetMapping(path = "/moderator/delete")
     public ResponseEntity<?> deletePublicationModerator(@RequestParam Integer id, @RequestParam Integer authorId) {
         Publication publication = publicationRepository.findById(id).orElse(null);
         if (publication == null) {
@@ -128,4 +134,3 @@ public class PublicationController {
         return ResponseEntity.ok().build();
     }
 }
-
